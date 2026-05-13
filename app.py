@@ -85,39 +85,51 @@ movie_posters = {
 st.markdown("""
 <style>
 
+/* Main background */
 .stApp {
     background: linear-gradient(to right, #141e30, #243b55);
     color: white;
 }
 
+/* Text input */
 .stTextInput input {
-    background-color: rgba(255,255,255,0.15);
+    background-color: rgba(255,255,255,0.12) !important;
     color: white !important;
-    border-radius: 10px;
-    border: 1px solid white;
-    font-size: 18px;
-}
-
-.stTextArea textarea {
-    background-color: rgba(255,255,255,0.15);
-    color: white !important;
-    border-radius: 10px;
-    border: 1px solid white;
-    font-size: 18px;
-}
-
-.stSelectbox div[data-baseweb="select"] {
-    background-color: rgba(255,255,255,0.15);
-    color: white !important;
-    border-radius: 10px;
-}
-
-label {
-    color: white !important;
+    border: 2px solid #ff4b4b !important;
+    border-radius: 12px !important;
     font-size: 18px !important;
-    font-weight: bold;
+    padding: 10px !important;
 }
 
+/* Text area */
+.stTextArea textarea {
+    background-color: rgba(255,255,255,0.12) !important;
+    color: white !important;
+    border: 2px solid #ff4b4b !important;
+    border-radius: 12px !important;
+    font-size: 18px !important;
+    padding: 10px !important;
+}
+
+/* Dropdown/selectbox */
+.stSelectbox div[data-baseweb="select"] > div {
+    background-color: rgba(255,255,255,0.12) !important;
+    color: white !important;
+    border-radius: 12px !important;
+    border: 2px solid #ff4b4b !important;
+}
+
+/* Dropdown text */
+.stSelectbox * {
+    color: white !important;
+}
+
+/* Labels */
+label, .stMarkdown, p, h1, h2, h3 {
+    color: white !important;
+}
+
+/* Button */
 .stButton button {
     width: 100%;
     height: 50px;
@@ -127,6 +139,19 @@ label {
     background: linear-gradient(to right, #ff512f, #dd2476);
     color: white;
     border: none;
+}
+
+/* Dataframe */
+[data-testid="stDataFrame"] {
+    background-color: rgba(255,255,255,0.08);
+    border-radius: 10px;
+}
+
+/* Metrics */
+[data-testid="metric-container"] {
+    background-color: rgba(255,255,255,0.08);
+    padding: 15px;
+    border-radius: 12px;
 }
 
 </style>
