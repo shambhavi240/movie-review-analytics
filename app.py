@@ -303,16 +303,19 @@ if not movies_df.empty:
         use_container_width=True
     )
 
-    # REVIEW HISTORY
+        # REVIEW HISTORY
     st.subheader("📝 Review History")
 
+    columns_to_show = ['review', 'sentiment']
+
+    if 'confidence' in movie_reviews.columns:
+        columns_to_show.append('confidence')
+
+    if 'timestamp' in movie_reviews.columns:
+        columns_to_show.append('timestamp')
+
     st.dataframe(
-        movie_reviews[[
-            'review',
-            'sentiment',
-            'confidence',
-            'timestamp'
-        ]]
+        movie_reviews[columns_to_show]
     )
 
     # TOP RATED MOVIES
