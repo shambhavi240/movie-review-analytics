@@ -87,7 +87,7 @@ if st.button("Analyze & Save Review"):
     if movie_name.strip() != "" and review.strip() != "":
 
         # Preprocess review
-        clean_review = preprocess(review)  # FIX 1: corrected indentation
+        clean_review = preprocess(review)
 
         # Vectorize
         review_vec = vectorizer.transform([clean_review])
@@ -95,36 +95,58 @@ if st.button("Analyze & Save Review"):
         # Predict
         prediction = model.predict(review_vec)[0]
 
-        # FIX 2: get confidence score properly
-        try:
-            proba = model.predict_proba(review_vec)[0]
-            confidence = max(proba) * 100
-        except AttributeError:
-            # LinearSVC doesn't support predict_proba — use decision function fallback
-            confidence = 0.0
+        # Probability
+        probability = model.predict_proba(review_vec)[0]
 
-        # FIX 3: compare against integer label (0/1), not string
-        if prediction == 1:
+        # Positive
+        if prediction == "positive":
+
             sentiment = "Positive"
-            st.success(f"✅ Positive Review — {confidence:.1f}% confidence")
-            st.balloons()
-        else:
-            sentiment = "Negative"
-            st.error(f"❌ Negative Review — {confidence:.1f}% confidence")
 
-        # Save to database with real confidence value
+            confidence = probability[1] * 100
+
+            st.success(
+                f"✅ Positive Review ({confidence:.1f}% confidence)"
+            )
+
+            st.balloons()
+
+        # Negative
+        else:
+
+            sentiment = "Negative"
+
+            confidence = probability[0] * 100
+
+            st.error(
+                f"❌ Negative Review ({confidence:.1f}% confidence)"
+            )
+
+        # Save to database
         cursor.execute("""
-        INSERT INTO reviews (movie_name, review, sentiment, confidence)
+        INSERT INTO reviews (
+            movie_name,
+            review,
+            sentiment,
+            confidence
+        )
         VALUES (?, ?, ?, ?)
-        """, (movie_name, review, sentiment, confidence))
+        """, (
+            movie_name,
+            review,
+            sentiment,
+            confidence
+        ))
 
         conn.commit()
 
         st.success("💾 Review Saved Successfully!")
 
     else:
-        st.warning("⚠️ Please enter movie name and review.")
 
+        st.warning(
+            "⚠️ Please enter movie name and review."
+        )
 # ---------------- ANALYTICS ---------------- #
 
 st.markdown("---")
