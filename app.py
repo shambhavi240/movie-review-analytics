@@ -107,37 +107,32 @@ if st.button("Analyze & Save Review"):
 
     if movie_name.strip() != "" and review.strip() != "":
 
+        # Preprocess review
         clean_review = preprocess(review)
 
+        # Convert review into vector
         review_vec = vectorizer.transform([clean_review])
 
+        # Predict sentiment
         prediction = model.predict(review_vec)[0]
 
-        probability = model.predict_proba(review_vec)[0]
-
-        if prediction == 1:
+        # Positive review
+        if prediction == "positive":
 
             sentiment = "Positive"
 
-            confidence = probability[1] * 100
-
-            st.success(
-                f"✅ Positive Review ({confidence:.2f}% confidence)"
-            )
+            st.success("✅ Positive Review")
 
             st.balloons()
 
+        # Negative review
         else:
 
             sentiment = "Negative"
 
-            confidence = probability[0] * 100
+            st.error("❌ Negative Review")
 
-            st.error(
-                f"❌ Negative Review ({confidence:.2f}% confidence)"
-            )
-
-        # SAVE REVIEW
+        # Save review into database
         cursor.execute("""
         INSERT INTO reviews (
             movie_name,
@@ -150,194 +145,13 @@ if st.button("Analyze & Save Review"):
             movie_name,
             review,
             sentiment,
-            confidence
+            0
         ))
 
         conn.commit()
 
-        st.success("💾 Review Saved!")
+        st.success("💾 Review Saved Successfully!")
 
     else:
-        st.warning("Please enter movie name and review.")
 
-# ---------------- ANALYTICS ---------------- #
-
-st.markdown("---")
-
-st.header("📊 Movie Analytics")
-
-movies_df = pd.read_sql_query(
-    "SELECT * FROM reviews",
-    conn
-)
-
-if not movies_df.empty:
-
-    movie_list = movies_df['movie_name'].unique()
-
-    selected_movie = st.selectbox(
-        "Select Movie",
-        movie_list
-    )
-
-    movie_reviews = movies_df[
-        movies_df['movie_name'] == selected_movie
-    ]
-
-    # FILTER REVIEWS
-    filter_option = st.selectbox(
-        "Filter Reviews",
-        ['All', 'Positive', 'Negative']
-    )
-
-    if filter_option != 'All':
-        movie_reviews = movie_reviews[
-            movie_reviews['sentiment'] == filter_option
-        ]
-
-    total_reviews = len(movie_reviews)
-
-    positive_reviews = len(
-        movie_reviews[
-            movie_reviews['sentiment'] == 'Positive'
-        ]
-    )
-
-    negative_reviews = len(
-        movie_reviews[
-            movie_reviews['sentiment'] == 'Negative'
-        ]
-    )
-
-    positive_percent = (
-        positive_reviews / total_reviews
-    ) * 100 if total_reviews > 0 else 0
-
-    negative_percent = (
-        negative_reviews / total_reviews
-    ) * 100 if total_reviews > 0 else 0
-
-    # POSTER
-    if selected_movie in movie_posters:
-        st.image(
-            movie_posters[selected_movie],
-            width=250
-        )
-
-    # METRICS
-    col1, col2, col3 = st.columns(3)
-
-    col1.metric(
-        "Total Reviews",
-        total_reviews
-    )
-
-    col2.metric(
-        "👍 Positive %",
-        f"{positive_percent:.1f}%"
-    )
-
-    col3.metric(
-        "👎 Negative %",
-        f"{negative_percent:.1f}%"
-    )
-
-    # AVERAGE SCORE
-    avg_score = positive_percent - negative_percent
-
-    st.metric(
-        "⭐ Sentiment Score",
-        f"{avg_score:.1f}"
-    )
-
-    # PIE CHART
-    chart_df = pd.DataFrame({
-        'Sentiment': ['Positive', 'Negative'],
-        'Count': [positive_reviews, negative_reviews]
-    })
-
-    fig = px.pie(
-        chart_df,
-        names='Sentiment',
-        values='Count',
-        hole=0.4,
-        title='Sentiment Distribution'
-    )
-
-    st.plotly_chart(
-        fig,
-        use_container_width=True
-    )
-
-        # REVIEW HISTORY
-    st.subheader("📝 Review History")
-
-    columns_to_show = ['review', 'sentiment']
-
-    if 'confidence' in movie_reviews.columns:
-        columns_to_show.append('confidence')
-
-    if 'timestamp' in movie_reviews.columns:
-        columns_to_show.append('timestamp')
-
-    st.dataframe(
-        movie_reviews[columns_to_show]
-    )
-
-    # TOP RATED MOVIES
-    st.markdown("---")
-
-    st.header("🏆 Top Rated Movies")
-
-    movie_stats = movies_df.groupby(
-        'movie_name'
-    )['sentiment'].apply(
-        lambda x: (x == 'Positive').mean() * 100
-    ).reset_index(name='positive_percent')
-
-    movie_stats = movie_stats.sort_values(
-        by='positive_percent',
-        ascending=False
-    )
-
-    st.dataframe(movie_stats)
-
-    # MOST REVIEWED MOVIES
-    st.markdown("---")
-
-    st.header("🔥 Most Reviewed Movies")
-
-    most_reviewed = movies_df[
-        'movie_name'
-    ].value_counts().reset_index()
-
-    most_reviewed.columns = [
-        'Movie',
-        'Reviews'
-    ]
-
-    st.dataframe(most_reviewed)
-
-    # TRENDING MOVIES
-    st.markdown("---")
-
-    st.header("📈 Trending Movies")
-
-    trending = movies_df.groupby(
-        'movie_name'
-    ).size().reset_index(name='count')
-
-    trend_fig = px.bar(
-        trending,
-        x='movie_name',
-        y='count',
-        title='Trending Movies by Reviews'
-    )
-
-    st.plotly_chart(
-        trend_fig,
-        use_container_width=True
-    )
-
-else:
-    st.info("No reviews available yet.")
+        st.warning("⚠️ Please enter movie name and review.")
