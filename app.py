@@ -91,15 +91,31 @@ st.markdown("""
 }
 
 .stTextInput input {
-    background-color: rgba(255,255,255,0.1);
-    color: white;
+    background-color: rgba(255,255,255,0.15);
+    color: white !important;
     border-radius: 10px;
+    border: 1px solid white;
+    font-size: 18px;
 }
 
 .stTextArea textarea {
-    background-color: rgba(255,255,255,0.1);
-    color: white;
+    background-color: rgba(255,255,255,0.15);
+    color: white !important;
     border-radius: 10px;
+    border: 1px solid white;
+    font-size: 18px;
+}
+
+.stSelectbox div[data-baseweb="select"] {
+    background-color: rgba(255,255,255,0.15);
+    color: white !important;
+    border-radius: 10px;
+}
+
+label {
+    color: white !important;
+    font-size: 18px !important;
+    font-weight: bold;
 }
 
 .stButton button {
