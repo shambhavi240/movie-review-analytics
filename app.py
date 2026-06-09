@@ -210,26 +210,6 @@ if rows:
 
 else:
     st.info("No reviews available yet.")
-
-if len(data) > 0:
-    import pandas as pd
-
-    df = pd.DataFrame(
-        data,
-        columns=[
-            "Movie",
-            "Review",
-            "Sentiment",
-            "Confidence"
-        ]
-    )
-
-    st.subheader("📜 Review History")
-    st.dataframe(df)
-
-else:
-    st.info("No reviews available yet.")
-
 movies_df = pd.read_sql_query("SELECT * FROM reviews", conn)
 
 if not movies_df.empty:
