@@ -341,8 +341,7 @@ with tab1:
     FROM reviews
     ORDER BY id DESC
     """)
-
-rows = cursor.fetchall()
+    rows = cursor.fetchall()
 
 if rows:
 
@@ -493,11 +492,6 @@ if not movies_df.empty:
     fig.update_layout(
     paper_bgcolor='white',
     plot_bgcolor='white'
-)
-
-    st.plotly_chart(
-    fig,
-    use_container_width=True
 )
 
     st.plotly_chart(
