@@ -34,35 +34,8 @@ st.set_page_config(
     page_icon="🎬",
     layout="wide"
 )
-with st.sidebar:
-
-    st.title("🎬 Dashboard")
-
-    st.markdown("---")
-
-    st.subheader("🤖 Model")
-    st.write("Logistic Regression")
-    st.write("TF-IDF Vectorizer")
-
-    st.markdown("---")
-
-    st.subheader("📈 Statistics")
-
-    cursor.execute("SELECT COUNT(*) FROM reviews")
-    total_reviews = cursor.fetchone()[0]
-
-    st.metric(
-        "Total Reviews",
-        total_reviews
-    )
-
-    st.markdown("---")
-
-    st.info(
-        "AI Powered Movie Sentiment Analysis System"
-    )
-    st.markdown("""
-<style>f
+st.markdown("""
+<style>
 
 .stApp {
     background: linear-gradient(
@@ -111,6 +84,45 @@ conn.commit()
 
 cursor.execute("SELECT COUNT(*) FROM reviews")
 count = cursor.fetchone()[0]
+with st.sidebar:
+
+
+
+    st.title("🎬 Dashboard")
+
+
+
+    st.markdown("---")
+
+
+
+    st.subheader("🤖 Model")
+
+    st.write("Logistic Regression")
+
+    st.write("TF-IDF Vectorizer")
+
+
+
+    st.markdown("---")
+
+
+
+    st.subheader("📈 Statistics")
+
+    st.metric(
+
+    "Total Reviews",
+
+    count
+
+)
+    st.markdown("---")
+    st.info(
+
+        "AI Powered Movie Sentiment Analysis System"
+
+    )
 
 # ---------------- LOAD MODEL ---------------- #
 
@@ -146,11 +158,18 @@ movie_posters = {
 # ---------------- TITLE ---------------- #
 
 st.title("🎬 Movie Review Analytics")
-
 st.markdown("""
-<h3 style='color:#38BDF8'>
-AI Powered Sentiment Intelligence Platform
-</h3>
+<div style="
+padding:20px;
+border-radius:15px;
+background:linear-gradient(90deg,#06B6D4,#3B82F6);
+text-align:center;
+color:white;
+font-size:22px;
+font-weight:bold;
+">
+🎯 AI Powered Sentiment Intelligence Platform
+</div>
 """, unsafe_allow_html=True)
 
 st.markdown("---")
@@ -208,12 +227,12 @@ if st.button("Analyze & Save Review"):
             st.info(
         f"😊 Sentiment\n\n{sentiment}"
     )
-            with col2:
-                st.success(
+        with col2:
+            st.success(
         f"🎯 Confidence\n\n{confidence:.2f}%"
     )
-                with col3:
-                    st.warning(
+        with col3:
+            st.warning(
         f"🎬 Movie\n\n{movie_name}"
     )
 
@@ -234,10 +253,7 @@ if st.button("Analyze & Save Review"):
             gauge_fig,
             use_container_width=True
         )
-        best_movie = movie_stats.iloc[0]
-        st.info(
-    f"💡 AI Insight: {best_movie['movie_name']} is currently the highest rated movie with {best_movie['positive_percent']:.1f}% positive reviews."
-)
+    
 
         word_count = len(review.split())
 
