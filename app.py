@@ -293,28 +293,27 @@ if not movies_df.empty:
     title='Top Rated Movies'
 )
 
-st.plotly_chart(
+    st.plotly_chart(
     fig,
     use_container_width=True
 )
 
 # Trending Movies
-st.markdown("---")
-st.header("📈 Trending Movies")
+    st.markdown("---")
+    st.header("📈 Trending Movies")
 
-trending = movies_df.groupby('movie_name').size().reset_index(name='count')
+    trending = movies_df.groupby('movie_name').size().reset_index(name='count')
 
-trend_fig = px.bar(
+    trend_fig = px.bar(
     trending,
     x='movie_name',
     y='count',
     title='Trending Movies'
 )
 
-st.plotly_chart(
+    st.plotly_chart(
     trend_fig,
     use_container_width=True
 )
-
 else:
     st.info("No reviews available yet.")
