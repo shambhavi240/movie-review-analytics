@@ -256,10 +256,6 @@ if not movies_df.empty:
     )
     st.plotly_chart(fig, use_container_width=True)
 
-    # Review History
-    st.subheader("📝 Review History")
-    st.dataframe(movie_reviews[['review', 'sentiment', 'confidence', 'timestamp']])
-
     # Top Rated Movies
     st.markdown("---")
     st.header("🏆 Top Rated Movies")
