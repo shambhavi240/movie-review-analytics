@@ -17,9 +17,8 @@ scope = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/drive"
 ]
-
-creds = ServiceAccountCredentials.from_json_keyfile_name(
-    "credentials_movie.json",
+creds = ServiceAccountCredentials.from_json_keyfile_dict(
+    dict(st.secrets),
     scope
 )
 
