@@ -36,8 +36,6 @@ st.set_page_config(
 )
 
 import os
-
-st.write(os.path.abspath("reviews.db"))
 # ---------------- DOWNLOAD NLTK ---------------- #
 
 nltk.download('stopwords')
@@ -62,8 +60,6 @@ conn.commit()
 
 cursor.execute("SELECT COUNT(*) FROM reviews")
 count = cursor.fetchone()[0]
-
-st.success(f"💾 Review Saved! Total reviews in database: {count}")
 
 # ---------------- LOAD MODEL ---------------- #
 
@@ -204,7 +200,7 @@ if rows:
         ]
     )
 
-    st.subheader("📜 Review History")
+    st.subheader("📜 Reviews")
     st.dataframe(df, use_container_width=True)
 
 else:
