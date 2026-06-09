@@ -37,20 +37,42 @@ st.set_page_config(
 st.markdown("""
 <style>
 
+/* Main background */
 .stApp {
-    background-color: #F8FAFC;
+    background-color: #F5F7FB;
 }
 
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background: linear-gradient(
+        180deg,
+        #24D4E3,
+        #8B5CF6
+    );
+}
+
+/* Sidebar text */
+[data-testid="stSidebar"] * {
+    color: white !important;
+}
+
+/* Headings */
 h1 {
-    color: #0F172A !important;
-}
-
-h2 {
-    color: #0F172A !important;
-}
-
-h3 {
     color: #334155 !important;
+    font-weight: 800 !important;
+}
+
+h2, h3 {
+    color: #475569 !important;
+}
+
+/* Tabs */
+.stTabs [data-baseweb="tab"] {
+    color: #64748B;
+}
+
+.stTabs [aria-selected="true"] {
+    color: #8B5CF6 !important;
 }
 
 </style>
@@ -166,13 +188,18 @@ font-weight:800;
 """, unsafe_allow_html=True)
 st.markdown("""
 <div style="
-padding:18px;
-border-radius:15px;
-background:#2563EB;
+background: linear-gradient(
+90deg,
+#24D4E3,
+#8B5CF6
+);
+padding:20px;
+border-radius:18px;
 text-align:center;
+font-size:26px;
+font-weight:700;
 color:white;
-font-size:24px;
-font-weight:bold;
+box-shadow:0px 8px 20px rgba(0,0,0,0.08);
 ">
 🎯 AI Powered Sentiment Intelligence Platform
 </div>
@@ -226,21 +253,13 @@ if st.button("Analyze & Save Review"):
             )
 
         # Metrics
-        col1, col2, col3 = st.columns(3)
-
-        col1, col2, col3 = st.columns(3)
+        col1,col2,col3 = st.columns(3)
         with col1:
-            st.info(
-        f"😊 Sentiment\n\n{sentiment}"
-    )
+            st.metric("😊 Sentiment", sentiment)
         with col2:
-            st.success(
-        f"🎯 Confidence\n\n{confidence:.2f}%"
-    )
+            st.metric("🎯 Confidence", f"{confidence:.2f}%")
         with col3:
-            st.warning(
-        f"🎬 Movie\n\n{movie_name}"
-    )
+            st.metric("🎬 Movie", movie_name)
 
         st.progress(confidence / 100)
 
@@ -384,12 +403,16 @@ if not movies_df.empty:
     })
 
     fig = px.pie(
-        chart_df,
-        names='Sentiment',
-        values='Count',
-        hole=0.4,
-        title='Sentiment Distribution'
-    )
+    chart_df,
+    names='Sentiment',
+    values='Count',
+    hole=0.6,
+    color='Sentiment',
+    color_discrete_map={
+        'Positive': '#8B5CF6',
+        'Negative': '#F472B6'
+    }
+)
     st.plotly_chart(fig, use_container_width=True)
 
     # Top Rated Movies
