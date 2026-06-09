@@ -116,7 +116,6 @@ if st.button("Analyze & Save Review"):
 
         # Predict
         prediction = model.predict(review_vec)[0]
-
         # Probability
         probability = model.predict_proba(review_vec)[0]
 
@@ -143,6 +142,15 @@ if st.button("Analyze & Save Review"):
             st.error(
                 f"❌ Negative Review ({confidence:.1f}% confidence)"
             )
+        from datetime import datetime
+
+        sheet.append_row([
+    movie_name,
+    review,
+    sentiment,
+    f"{confidence:.2f}%",
+    datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+])
 
         # Save to database
         cursor.execute("""
