@@ -9,6 +9,25 @@ import plotly.express as px
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 import pandas as pd
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+# ---------------- GOOGLE SHEETS ---------------- #
+
+scope = [
+    "https://spreadsheets.google.com/feeds",
+    "https://www.googleapis.com/auth/drive"
+]
+
+creds = ServiceAccountCredentials.from_json_keyfile_name(
+    "credentials_movie.json",
+    scope
+)
+
+client = gspread.authorize(creds)
+
+sheet = client.open(
+    "Movie Reviews Database"
+).sheet1
 # ---------------- PAGE CONFIG ---------------- #
 
 st.set_page_config(
@@ -18,6 +37,8 @@ st.set_page_config(
 )
 
 import os
+
+st.write(os.path.abspath("reviews.db"))
 # ---------------- DOWNLOAD NLTK ---------------- #
 
 nltk.download('stopwords')
@@ -39,6 +60,11 @@ CREATE TABLE IF NOT EXISTS reviews (
 """)
 
 conn.commit()
+
+cursor.execute("SELECT COUNT(*) FROM reviews")
+count = cursor.fetchone()[0]
+
+st.success(f"💾 Review Saved! Total reviews in database: {count}")
 
 # ---------------- LOAD MODEL ---------------- #
 
@@ -140,6 +166,7 @@ if st.button("Analyze & Save Review"):
         ))
 
         conn.commit()
+
         st.success("💾 Review Saved Successfully!")
 
     else:
@@ -184,11 +211,11 @@ if rows:
 else:
     st.info("No reviews available yet.")
 
-if len(rows) > 0:
+if len(data) > 0:
     import pandas as pd
 
     df = pd.DataFrame(
-        rows,
+        data,
         columns=[
             "Movie",
             "Review",
