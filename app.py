@@ -38,24 +38,21 @@ st.markdown("""
 <style>
 
 .stApp {
-    background: linear-gradient(
-        135deg,
-        #0F172A,
-        #1E293B
-    );
+    background-color: #F8FAFC;
 }
 
-h1, h2, h3 {
-    color: white;
+h1 {
+    color: #0F172A !important;
 }
 
-</style>
-""", unsafe_allow_html=True)
-st.markdown("""
-<style>
-.stApp {
-    background: linear-gradient(135deg, #141E30, #243B55);
+h2 {
+    color: #0F172A !important;
 }
+
+h3 {
+    color: #334155 !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -157,15 +154,24 @@ movie_posters = {
 
 # ---------------- TITLE ---------------- #
 
-st.title("🎬 Movie Review Analytics")
+st.markdown("""
+<h1 style="
+text-align:center;
+color:#0F172A;
+font-size:55px;
+font-weight:800;
+">
+🎬 Movie Review Analytics
+</h1>
+""", unsafe_allow_html=True)
 st.markdown("""
 <div style="
-padding:20px;
+padding:18px;
 border-radius:15px;
-background:linear-gradient(90deg,#06B6D4,#3B82F6);
+background:#2563EB;
 text-align:center;
 color:white;
-font-size:22px;
+font-size:24px;
 font-weight:bold;
 ">
 🎯 AI Powered Sentiment Intelligence Platform
