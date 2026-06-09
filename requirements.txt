@@ -4,3 +4,5 @@ scikit-learn
 nltk
 matplotlib
 plotly
+gspread
+oauth2client
