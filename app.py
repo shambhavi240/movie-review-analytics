@@ -18,8 +18,6 @@ st.set_page_config(
 )
 
 import os
-
-st.write(os.path.abspath("reviews.db"))
 # ---------------- DOWNLOAD NLTK ---------------- #
 
 nltk.download('stopwords')
@@ -148,8 +146,6 @@ if st.button("Analyze & Save Review"):
 
         conn.commit()
 
-        st.success("💾 Review Saved Successfully!")
-
     else:
 
         st.warning(
@@ -192,7 +188,7 @@ if rows:
 else:
     st.info("No reviews available yet.")
 
-if len(data) > 0:
+if len(rows) > 0:
     import pandas as pd
 
     df = pd.DataFrame(
