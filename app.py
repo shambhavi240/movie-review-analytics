@@ -120,28 +120,63 @@ if st.button("Analyze & Save Review"):
         probability = model.predict_proba(review_vec)[0]
 
         # Positive
+        if st.button("Analyze & Save Review"):
+
+    if movie_name.strip() != "" and review.strip() != "":
+
+        # Preprocess review
+        clean_review = preprocess(review)
+
+        # Vectorize
+        review_vec = vectorizer.transform([clean_review])
+
+        # Predict
+        prediction = model.predict(review_vec)[0]
+        # Probability
+        probability = model.predict_proba(review_vec)[0]
+
+        # Positive
         if prediction == "positive":
-
             sentiment = "Positive"
-
             confidence = probability[1] * 100
-
             st.success(
                 f"✅ Positive Review ({confidence:.1f}% confidence)"
             )
-
             st.balloons()
 
         # Negative
         else:
-
             sentiment = "Negative"
-
             confidence = probability[0] * 100
-
             st.error(
                 f"❌ Negative Review ({confidence:.1f}% confidence)"
             )
+        
+        # Display Metrics (Aligned with the if/else logic)
+        col1, col2, col3 = st.columns(3)
+
+        col1.metric(
+            "Sentiment",
+            sentiment
+        )
+
+        col2.metric(
+            "Confidence",
+            f"{confidence:.2f}%"
+        )
+
+        col3.metric(
+            "Movie",
+            movie_name
+        )
+
+        # Progress bar requires a float between 0.0 and 1.0
+        st.progress(confidence / 100)
+        word_count = len(review.split())
+        st.metric(
+    "Review Length",
+    f"{word_count} words"
+)
         from datetime import datetime
 
         sheet.append_row([
@@ -269,7 +304,17 @@ if not movies_df.empty:
     ).reset_index(name='positive_percent')
 
     movie_stats = movie_stats.sort_values(by='positive_percent', ascending=False)
-    st.dataframe(movie_stats)
+    fig = px.bar(
+    movie_stats,
+    x='movie_name',
+    y='positive_percent',
+    title='Top Rated Movies'
+)
+
+st.plotly_chart(
+    fig,
+    use_container_width=True
+)
 
     # Trending Movies
     st.markdown("---")
