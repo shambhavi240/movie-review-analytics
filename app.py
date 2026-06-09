@@ -8,7 +8,7 @@ import plotly.express as px
 
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
-
+import pandas as pd
 # ---------------- PAGE CONFIG ---------------- #
 
 st.set_page_config(
@@ -17,6 +17,9 @@ st.set_page_config(
     layout="wide"
 )
 
+import os
+
+st.write(os.path.abspath("reviews.db"))
 # ---------------- DOWNLOAD NLTK ---------------- #
 
 nltk.download('stopwords')
@@ -38,6 +41,11 @@ CREATE TABLE IF NOT EXISTS reviews (
 """)
 
 conn.commit()
+
+cursor.execute("SELECT COUNT(*) FROM reviews")
+count = cursor.fetchone()[0]
+
+st.success(f"💾 Review Saved! Total reviews in database: {count}")
 
 # ---------------- LOAD MODEL ---------------- #
 
@@ -151,6 +159,57 @@ if st.button("Analyze & Save Review"):
 
 st.markdown("---")
 st.header("📊 Movie Analytics")
+cursor.execute("""
+SELECT movie_name,
+       review,
+       sentiment,
+       confidence,
+       timestamp
+FROM reviews
+ORDER BY id DESC
+""")
+
+rows = cursor.fetchall()
+
+if rows:
+
+    import pandas as pd
+
+    df = pd.DataFrame(
+        rows,
+        columns=[
+            "Movie",
+            "Review",
+            "Sentiment",
+            "Confidence",
+            "Timestamp"
+        ]
+    )
+
+    st.subheader("📜 Review History")
+    st.dataframe(df, use_container_width=True)
+
+else:
+    st.info("No reviews available yet.")
+
+if len(data) > 0:
+    import pandas as pd
+
+    df = pd.DataFrame(
+        data,
+        columns=[
+            "Movie",
+            "Review",
+            "Sentiment",
+            "Confidence"
+        ]
+    )
+
+    st.subheader("📜 Review History")
+    st.dataframe(df)
+
+else:
+    st.info("No reviews available yet.")
 
 movies_df = pd.read_sql_query("SELECT * FROM reviews", conn)
 
