@@ -5,7 +5,7 @@ import sqlite3
 import pandas as pd
 import nltk
 import plotly.express as px
-
+import plotly.graph_objects as go
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 import pandas as pd
@@ -34,6 +34,57 @@ st.set_page_config(
     page_icon="🎬",
     layout="wide"
 )
+with st.sidebar:
+
+    st.title("🎬 Dashboard")
+
+    st.markdown("---")
+
+    st.subheader("🤖 Model")
+    st.write("Logistic Regression")
+    st.write("TF-IDF Vectorizer")
+
+    st.markdown("---")
+
+    st.subheader("📈 Statistics")
+
+    cursor.execute("SELECT COUNT(*) FROM reviews")
+    total_reviews = cursor.fetchone()[0]
+
+    st.metric(
+        "Total Reviews",
+        total_reviews
+    )
+
+    st.markdown("---")
+
+    st.info(
+        "AI Powered Movie Sentiment Analysis System"
+    )
+    st.markdown("""
+<style>f
+
+.stApp {
+    background: linear-gradient(
+        135deg,
+        #0F172A,
+        #1E293B
+    );
+}
+
+h1, h2, h3 {
+    color: white;
+}
+
+</style>
+""", unsafe_allow_html=True)
+st.markdown("""
+<style>
+.stApp {
+    background: linear-gradient(135deg, #141E30, #243B55);
+}
+</style>
+""", unsafe_allow_html=True)
 
 import os
 # ---------------- DOWNLOAD NLTK ---------------- #
@@ -94,8 +145,15 @@ movie_posters = {
 
 # ---------------- TITLE ---------------- #
 
-st.title("🎬 Movie Review Analytics System")
-st.markdown("### AI-powered Movie Sentiment Dashboard")
+st.title("🎬 Movie Review Analytics")
+
+st.markdown("""
+<h3 style='color:#38BDF8'>
+AI Powered Sentiment Intelligence Platform
+</h3>
+""", unsafe_allow_html=True)
+
+st.markdown("---")
 
 # ---------------- INPUTS ---------------- #
 
@@ -145,11 +203,41 @@ if st.button("Analyze & Save Review"):
         # Metrics
         col1, col2, col3 = st.columns(3)
 
-        col1.metric("Sentiment", sentiment)
-        col2.metric("Confidence", f"{confidence:.2f}%")
-        col3.metric("Movie", movie_name)
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.info(
+        f"😊 Sentiment\n\n{sentiment}"
+    )
+            with col2:
+                st.success(
+        f"🎯 Confidence\n\n{confidence:.2f}%"
+    )
+                with col3:
+                    st.warning(
+        f"🎬 Movie\n\n{movie_name}"
+    )
 
         st.progress(confidence / 100)
+
+        gauge_fig = go.Figure(
+            go.Indicator(
+                mode="gauge+number",
+                value=confidence,
+                title={"text": "Confidence Score"},
+                gauge={
+                    "axis": {"range": [0, 100]}
+                }
+            )
+        )
+
+        st.plotly_chart(
+            gauge_fig,
+            use_container_width=True
+        )
+        best_movie = movie_stats.iloc[0]
+        st.info(
+    f"💡 AI Insight: {best_movie['movie_name']} is currently the highest rated movie with {best_movie['positive_percent']:.1f}% positive reviews."
+)
 
         word_count = len(review.split())
 
@@ -196,17 +284,22 @@ if st.button("Analyze & Save Review"):
         )
 # ---------------- ANALYTICS ---------------- #
 
-st.markdown("---")
-st.header("📊 Movie Analytics")
-cursor.execute("""
-SELECT movie_name,
-       review,
-       sentiment,
-       confidence,
-       timestamp
-FROM reviews
-ORDER BY id DESC
-""")
+tab1, tab2 = st.tabs([
+    "📊 Analytics",
+    "📜 History"
+])
+
+with tab1:
+
+    cursor.execute("""
+    SELECT movie_name,
+           review,
+           sentiment,
+           confidence,
+           timestamp
+    FROM reviews
+    ORDER BY id DESC
+    """)
 
 rows = cursor.fetchall()
 
@@ -287,15 +380,20 @@ if not movies_df.empty:
 
     movie_stats = movie_stats.sort_values(by='positive_percent', ascending=False)
     fig = px.bar(
-    movie_stats,
-    x='movie_name',
-    y='positive_percent',
-    title='Top Rated Movies'
-)
+        movie_stats,
+        x='movie_name',
+        y='positive_percent',
+        title='Top Rated Movies'
+    )
 
     st.plotly_chart(
     fig,
     use_container_width=True
+)
+    
+    best_movie = movie_stats.iloc[0]
+    st.success(
+    f"💡 AI Insight: {best_movie['movie_name']} is currently the highest rated movie with {best_movie['positive_percent']:.1f}% positive reviews."
 )
 
 # Trending Movies
@@ -317,3 +415,10 @@ if not movies_df.empty:
 )
 else:
     st.info("No reviews available yet.")
+st.markdown("---")
+
+st.subheader("🤖 Model Information")
+
+st.write("Algorithm: Logistic Regression")
+st.write("Vectorizer: TF-IDF")
+st.write("Dataset: IMDb 50K Reviews")
