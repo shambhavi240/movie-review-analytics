@@ -40,11 +40,6 @@ CREATE TABLE IF NOT EXISTS reviews (
 
 conn.commit()
 
-cursor.execute("SELECT COUNT(*) FROM reviews")
-count = cursor.fetchone()[0]
-
-st.success(f"💾 Review Saved! Total reviews in database: {count}")
-
 # ---------------- LOAD MODEL ---------------- #
 
 model = pickle.load(open("model.pkl", "rb"))
@@ -145,6 +140,7 @@ if st.button("Analyze & Save Review"):
         ))
 
         conn.commit()
+        st.success("💾 Review Saved Successfully!")
 
     else:
 
@@ -192,7 +188,7 @@ if len(rows) > 0:
     import pandas as pd
 
     df = pd.DataFrame(
-        data,
+        rows,
         columns=[
             "Movie",
             "Review",
