@@ -1,8 +1,10 @@
 streamlit
 pandas
+numpy
 scikit-learn
 nltk
-matplotlib
 plotly
 gspread
 oauth2client
+transformers
+torch
