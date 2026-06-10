@@ -161,6 +161,12 @@ emotion_classifier = load_emotion_model()
 # ---------------- NLP SETUP ---------------- #
 
 stop_words = set(stopwords.words('english'))
+
+# Keep important negation words
+stop_words.discard("not")
+stop_words.discard("no")
+stop_words.discard("never")
+
 stemmer = PorterStemmer()
 
 # ---------------- PREPROCESS FUNCTION ---------------- #
@@ -245,7 +251,9 @@ if st.button("Analyze & Save Review"):
         probability = model.predict_proba(review_vec)[0]
         positive_prob = probability[1]
         negative_prob = probability[0]
-        if positive_prob >= 0.60:
+        st.write("Positive Probability:", positive_prob)
+        st.write("Negative Probability:", negative_prob)
+        if positive_prob >= 0.66:
             sentiment = "Positive"
             confidence = positive_prob * 100
 
