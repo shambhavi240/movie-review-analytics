@@ -11,6 +11,7 @@ from nltk.stem import PorterStemmer
 import pandas as pd
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+from transformers import pipeline
 # ---------------- GOOGLE SHEETS ---------------- #
 
 scope = [
@@ -147,6 +148,15 @@ with st.sidebar:
 
 model = pickle.load(open("model.pkl", "rb"))
 vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
+@st.cache_resource
+def load_emotion_model():
+    return pipeline(
+        "text-classification",
+        model="j-hartmann/emotion-english-distilroberta-base",
+        top_k=None
+    )
+
+emotion_classifier = load_emotion_model()
 
 # ---------------- NLP SETUP ---------------- #
 
@@ -223,34 +233,48 @@ if st.button("Analyze & Save Review"):
 
         # Vectorize
         review_vec = vectorizer.transform([clean_review])
+        emotion_result = emotion_classifier(review)[0]
+        dominant_emotion = max(
+    emotion_result,
+    key=lambda x: x['score']
+)
+        emotion_name = dominant_emotion['label']
+        emotion_score = dominant_emotion['score'] * 100
 
         # Predict
-        prediction = model.predict(review_vec)[0]
-
-        # Probability
         probability = model.predict_proba(review_vec)[0]
+        positive_prob = probability[1]
+        negative_prob = probability[0]
+        if positive_prob >= 0.60:
+            sentiment = "Positive"
+            confidence = positive_prob * 100
+
+        elif positive_prob <= 0.40:
+            sentiment = "Negative"
+            confidence = negative_prob * 100
+
+        else:
+            sentiment = "Neutral"
+            confidence = max(
+            positive_prob,
+        negative_prob
+    ) * 100
 
         # Positive
-        if prediction == "positive":
-
-            sentiment = "Positive"
-            confidence = probability[1] * 100
-
+        if sentiment == "Positive":
             st.success(
-                f"✅ Positive Review ({confidence:.1f}% confidence)"
-            )
-
+        f"✅ Positive Review ({confidence:.1f}% confidence)"
+    )
             st.balloons()
+        elif sentiment == "Neutral":
+            st.warning(
+        f"😐 Neutral Review ({confidence:.1f}% confidence)"
+    )
 
-        # Negative
         else:
-
-            sentiment = "Negative"
-            confidence = probability[0] * 100
-
             st.error(
-                f"❌ Negative Review ({confidence:.1f}% confidence)"
-            )
+        f"❌ Negative Review ({confidence:.1f}% confidence)"
+    )
 
         # Metrics
         col1,col2,col3 = st.columns(3)
@@ -278,7 +302,114 @@ if st.button("Analyze & Save Review"):
             gauge_fig,
             use_container_width=True
         )
-    
+        st.markdown("---")
+        st.header("💭 Emotion Analysis")
+
+        col1,col2 = st.columns(2)
+        col1.metric(
+    "Dominant Emotion",
+    emotion_name.capitalize()
+)
+        col2.metric(
+    "Emotion Strength",
+    f"{emotion_score:.1f}%"
+)
+        emotion_df = pd.DataFrame(emotion_result)
+        emotion_df.rename(
+            columns={
+        "label":"Emotion",
+        "score":"Score"
+    },
+            inplace=True
+)
+
+        emotion_df["Score"] *= 100
+
+        emotion_fig = px.bar(
+            emotion_df,
+            x="Emotion",
+            y="Score",
+            color="Emotion",
+            color_discrete_sequence=[
+                "#24D4E3",
+                "#8B5CF6",
+                "#F472B6",
+                "#24D4E3",
+                "#8B5CF6"
+            ]
+        )
+
+        emotion_fig.update_layout(
+            paper_bgcolor='white',
+            plot_bgcolor='white'
+        )
+
+        st.plotly_chart(
+            emotion_fig,
+            use_container_width=True
+        )
+        st.markdown("---")
+        st.header("📝 AI Generated Summary")
+        if sentiment == "Positive":
+
+            summary = f"""
+            Audience reaction to {movie_name}
+            is strongly positive.
+
+            Viewers appear to appreciate
+            the storytelling, performances
+            and overall cinematic experience.
+
+            Dominant emotion detected:
+            {emotion_name}.
+         """
+
+        elif sentiment == "Neutral":
+
+            summary = f"""
+            Audience opinion on {movie_name}
+            appears mixed.
+
+            Some viewers enjoyed the movie,
+            while others found parts of it
+            less engaging.
+
+            Dominant emotion detected:
+            {emotion_name}.
+            """
+
+        else:
+
+            summary = f"""
+                Audience reaction to {movie_name}
+                is mostly negative.
+
+                Reviews indicate concerns about
+                pacing, execution or overall
+                enjoyment.
+
+                Dominant emotion detected:
+                {emotion_name}.
+                """
+        st.markdown(f"""
+<div style="
+background:white;
+padding:20px;
+border-radius:15px;
+border-left:6px solid #8B5CF6;
+box-shadow:0px 5px 15px rgba(0,0,0,0.08);
+">
+
+<h3 style="color:#8B5CF6;">
+📝 AI Generated Summary
+</h3>
+
+<p style="font-size:18px;">
+{summary}
+</p>
+
+</div>
+""", unsafe_allow_html=True)         
 
         word_count = len(review.split())
 
@@ -371,9 +502,15 @@ if not movies_df.empty:
     selected_movie = st.selectbox("Select Movie", movie_list)
 
     movie_reviews = movies_df[movies_df['movie_name'] == selected_movie]
+    all_reviews = " ".join(
+    movie_reviews["review"].tolist()
+)
 
     # Filter
-    filter_option = st.selectbox("Filter Reviews", ['All', 'Positive', 'Negative'])
+    filter_option = st.selectbox(
+    "Filter Reviews",
+    ["All","Positive","Neutral","Negative"]
+)
 
     if filter_option != 'All':
         movie_reviews = movie_reviews[movie_reviews['sentiment'] == filter_option]
@@ -381,26 +518,81 @@ if not movies_df.empty:
     total_reviews    = len(movie_reviews)
     positive_reviews = len(movie_reviews[movie_reviews['sentiment'] == 'Positive'])
     negative_reviews = len(movie_reviews[movie_reviews['sentiment'] == 'Negative'])
-
+    neutral_reviews = len(movie_reviews[movie_reviews['sentiment']=="Neutral"]
+)
     positive_percent = (positive_reviews / total_reviews * 100) if total_reviews > 0 else 0
     negative_percent = (negative_reviews / total_reviews * 100) if total_reviews > 0 else 0
+    neutral_percent  = (neutral_reviews / total_reviews * 100) if total_reviews > 0 else 0
+    neutral_percent = (
+    neutral_reviews/total_reviews*100
+    if total_reviews>0 else 0
+)
+    st.markdown("---")
+    st.header("🎭 Audience Mood Meter")
 
+    col1,col2,col3 = st.columns(3)
+
+    col1.metric(
+    "😊 Positive",
+    f"{positive_percent:.1f}%"
+)
+
+    col2.metric(
+    "😐 Neutral",
+    f"{neutral_percent:.1f}%"
+)
+
+    col3.metric(
+    "😡 Negative",
+    f"{negative_percent:.1f}%"
+)
+    st.header("🧠 AI Insights")
+    verdict = ""
+    if positive_percent >= 70:
+        verdict = "Highly Recommended"
+    elif positive_percent >= 50:
+        verdict = "Recommended"
+    else:
+        verdict = "Mixed Reception"
+    col1,col2,col3 = st.columns(3)
+    col1.metric(
+    "Audience Verdict",
+    verdict
+)
+    col2.metric(
+    "Positive %",
+    f"{positive_percent:.1f}%"
+)
+    col3.metric(
+    "Reviews",
+    total_reviews
+)
     # Poster
     if selected_movie in movie_posters:
         st.image(movie_posters[selected_movie], width=250)
 
     # Metrics
-    col1,col2,col3,col4 = st.columns(4)
-    col1.metric("📊 Reviews", count)
+    col1,col2,col3,col4,col5 = st.columns(5)
+
+    col1.metric("📊 Reviews", total_reviews)
     col2.metric("😊 Positive", positive_reviews)
-    col3.metric("😞 Negative", negative_reviews)
-    col4.metric("🎯 Accuracy", "91%")
+    col3.metric("😐 Neutral", neutral_reviews)
+    col4.metric("😞 Negative", negative_reviews)
+    col5.metric("🎯 Accuracy", "91%")
 
     # Pie Chart
     chart_df = pd.DataFrame({
-        'Sentiment': ['Positive', 'Negative'],
-        'Count': [positive_reviews, negative_reviews]
-    })
+    'Sentiment': [
+        'Positive',
+        'Neutral',
+        'Negative'
+    ],
+    'Count': [
+        positive_reviews,
+        neutral_reviews,
+        negative_reviews
+    ]
+})
 
     fig = px.pie(
     chart_df,
@@ -409,14 +601,15 @@ if not movies_df.empty:
     hole=0.65,
     color='Sentiment',
     color_discrete_map={
-        'Positive': '#8B5CF6',
+        'Positive': "#24D4E3",
+        'Neutral': '#8B5CF6',
         'Negative': '#F472B6'
     }
 )
 
     fig.update_traces(
     textinfo='percent+label',
-    pull=[0.03, 0]
+    pull=[0.03,0,0]
 )
 
     fig.update_layout(
