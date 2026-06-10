@@ -522,6 +522,22 @@ if not movies_df.empty:
 
     if filter_option != 'All':
         movie_reviews = movie_reviews[movie_reviews['sentiment'] == filter_option]
+        st.markdown("---")
+        st.subheader(f"📝 {filter_option} Reviews")
+        for _, row in movie_reviews.iterrows():
+            if row['sentiment'] == 'Positive':
+                st.success(
+            f"{row['review']}\n\nConfidence: {row['confidence']:.1f}%"
+        )
+            elif row['sentiment'] == 'Negative':
+                st.error(
+            f"{row['review']}\n\nConfidence: {row['confidence']:.1f}%"
+        )
+            else:
+                st.warning(
+            f"{row['review']}\n\nConfidence: {row['confidence']:.1f}%"
+        )
+        
 
     total_reviews    = len(movie_reviews)
     positive_reviews = len(movie_reviews[movie_reviews['sentiment'] == 'Positive'])
