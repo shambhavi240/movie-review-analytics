@@ -31,9 +31,6 @@ sheet = client.open_by_key(
 
 data = sheet.get_all_records()
 
-st.write("Rows Found:", len(data))
-st.write(data[:3])
-
 sheet = client.open_by_key(
     "1pntZJD7bwjkCzjGISYH1gsUVsBe_77JvBYisuJQzEak"
 ).sheet1
