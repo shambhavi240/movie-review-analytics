@@ -25,9 +25,20 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(
 
 client = gspread.authorize(creds)
 
-sheet = client.open(
-    "Movie Reviews Database"
+sheet = client.open_by_key(
+    "1pntZJD7bwjkCzjGISYH1gsUVsBe_77JvBYisuJQzEak"
 ).sheet1
+
+data = sheet.get_all_records()
+
+st.write("Rows Found:", len(data))
+st.write(data[:3])
+
+sheet = client.open_by_key(
+    "1pntZJD7bwjkCzjGISYH1gsUVsBe_77JvBYisuJQzEak"
+).sheet1
+
+
 # ---------------- PAGE CONFIG ---------------- #
 
 st.set_page_config(
@@ -464,42 +475,25 @@ box-shadow:0px 5px 15px rgba(0,0,0,0.08);
         )
 # ---------------- ANALYTICS ---------------- #
 
-tab1, tab2 = st.tabs([
-    "📊 Analytics",
-    "📜 History"
-])
+tab1 = st.tabs(["📊 Analytics"])[0]
 
 with tab1:
 
-    cursor.execute("""
-SELECT movie_name,
-       review,
-       sentiment,
-       confidence,
-       timestamp
-FROM reviews
-ORDER BY id DESC
-""")
+    st.subheader("📜 Reviews")
 
-rows = cursor.fetchall()
+reviews_df = pd.DataFrame(
+    sheet.get_all_records()
+)
 
-if rows:
+if not reviews_df.empty:
 
-    df = pd.DataFrame(
-        rows,
-        columns=[
-            "Movie",
-            "Review",
-            "Sentiment",
-            "Confidence",
-            "Timestamp"
-        ]
+    st.dataframe(
+        reviews_df,
+        use_container_width=True
     )
 
-    st.subheader("📜 Reviews")
-    st.dataframe(df, use_container_width=True)
-
 else:
+
     st.info("No reviews available yet.")
 sheet_data = sheet.get_all_records()
 movies_df = pd.DataFrame(sheet_data)
