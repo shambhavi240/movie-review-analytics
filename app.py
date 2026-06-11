@@ -472,19 +472,18 @@ tab1, tab2 = st.tabs([
 with tab1:
 
     cursor.execute("""
-    SELECT movie_name,
-           review,
-           sentiment,
-           confidence,
-           timestamp
-    FROM reviews
-    ORDER BY id DESC
-    """)
-    rows = cursor.fetchall()
+SELECT movie_name,
+       review,
+       sentiment,
+       confidence,
+       timestamp
+FROM reviews
+ORDER BY id DESC
+""")
+
+rows = cursor.fetchall()
 
 if rows:
-
-    import pandas as pd
 
     df = pd.DataFrame(
         rows,
@@ -499,7 +498,7 @@ if rows:
 
     st.subheader("📜 Reviews")
     st.dataframe(df, use_container_width=True)
-    sheet_data = sheet.get_all_records()
+
 else:
     st.info("No reviews available yet.")
 sheet_data = sheet.get_all_records()
