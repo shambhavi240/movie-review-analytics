@@ -102,8 +102,8 @@ CREATE TABLE IF NOT EXISTS reviews (
 
 conn.commit()
 
-cursor.execute("SELECT COUNT(*) FROM reviews")
-count = cursor.fetchone()[0]
+sheet_data = sheet.get_all_records()
+count = len(sheet_data)
 with st.sidebar:
 
 
@@ -499,16 +499,17 @@ if rows:
 
     st.subheader("📜 Reviews")
     st.dataframe(df, use_container_width=True)
-
-else:
     sheet_data = sheet.get_all_records()
-    movies_df = pd.DataFrame(sheet_data)
-    movies_df.columns = movies_df.columns.str.strip()
-    movie_list = movies_df['Movie'].unique()
-if not movies_df.empty:
+else:
+    st.info("No reviews available yet.")
+sheet_data = sheet.get_all_records()
+movies_df = pd.DataFrame(sheet_data)
 
-    st.write(movies_df.columns)
-    st.stop()
+movies_df.columns = movies_df.columns.str.strip()
+
+movie_list = movies_df['Movie'].unique()
+
+if not movies_df.empty:
     selected_movie = st.selectbox("Select Movie", movie_list)
 
     movie_reviews = movies_df[movies_df['Movie'] == selected_movie]
@@ -698,7 +699,7 @@ if not movies_df.empty:
     movie_stats = movie_stats.sort_values(by='positive_percent', ascending=False)
     fig = px.bar(
     movie_stats,
-    x='movie_name',
+    x='Movie',
     y='positive_percent',
     color='positive_percent',
     color_continuous_scale=[
@@ -719,17 +720,17 @@ if not movies_df.empty:
 )
     best_movie = movie_stats.iloc[0]
     st.success(
-    f"💡 AI Insight: {best_movie['movie_name']} is currently the highest rated movie with {best_movie['positive_percent']:.1f}% positive reviews."
+    f"💡 AI Insight: {best_movie['Movie']} is currently the highest rated movie with {best_movie['positive_percent']:.1f}% positive reviews."
 )
 
 # Trending Movies
     st.markdown("---")
     st.header("📈 Trending Movies")
-    ttrending = movies_df.groupby('Movie').size().reset_index(name='count')
+    trending = movies_df.groupby('Movie').size().reset_index(name='count')
     trend_fig = px.bar(
     trending,
     x='count',
-    y='movie_name',
+    y='Movie',
     orientation='h',
     color='count',
     color_continuous_scale='purples'
