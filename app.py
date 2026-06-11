@@ -502,14 +502,15 @@ if rows:
 
 else:
     st.info("No reviews available yet.")
-movies_df = pd.read_sql_query("SELECT * FROM reviews", conn)
+    sheet_data = sheet.get_all_records()
+    movies_df = pd.DataFrame(sheet_data)
 
 if not movies_df.empty:
 
-    movie_list = movies_df['movie_name'].unique()
+    movie_list = movies_df['Movie'].unique()
     selected_movie = st.selectbox("Select Movie", movie_list)
 
-    movie_reviews = movies_df[movies_df['movie_name'] == selected_movie]
+    movie_reviews = movies_df[movies_df['Movie'] == selected_movie]
     all_reviews = " ".join(
     movie_reviews["review"].tolist()
 )
@@ -690,7 +691,7 @@ if not movies_df.empty:
 )
     st.markdown("---")
     st.header("🏆 Top Rated Movies")
-    movie_stats = movies_df.groupby('movie_name')['sentiment'].apply(
+    movie_stats = movies_df.groupby('Movie')['sentiment'].apply(
         lambda x: (x == 'Positive').mean() * 100
     ).reset_index(name='positive_percent')
     movie_stats = movie_stats.sort_values(by='positive_percent', ascending=False)
@@ -723,7 +724,7 @@ if not movies_df.empty:
 # Trending Movies
     st.markdown("---")
     st.header("📈 Trending Movies")
-    trending = movies_df.groupby('movie_name').size().reset_index(name='count')
+    ttrending = movies_df.groupby('Movie').size().reset_index(name='count')
     trend_fig = px.bar(
     trending,
     x='count',
