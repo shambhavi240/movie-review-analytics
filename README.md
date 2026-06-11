@@ -1,10 +1,11 @@
 # 🎬 Movie Review Analytics
 # Live Application:
 https://movie-review-analytics-kzqvwwe4nwjqtc7fgt6fis.streamlit.app/
-
-An AI-powered Movie Review Analytics Platform that analyzes audience reviews, predicts sentiment, detects emotions, and generates actionable insights through interactive dashboards.
+# Demo link:
+https://www.youtube.com/watch?v=3-Czb8aZFkg
 
 ## 🚀 Overview
+An AI-powered Movie Review Analytics Platform that analyzes audience reviews, predicts sentiment, detects emotions, and generates actionable insights through interactive dashboards.
 
 Movie Review Analytics is a machine learning-based web application built using Python and Streamlit. The platform allows users to submit movie reviews, automatically classifies them into Positive, Neutral, or Negative categories, and provides detailed analytics on audience perception.
 
