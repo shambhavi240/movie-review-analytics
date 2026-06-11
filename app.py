@@ -523,16 +523,16 @@ if not movies_df.empty:
         for _, row in movie_reviews.iterrows():
             if row['sentiment'] == 'Positive':
                 st.success(
-            f"{row['review']}\n\nConfidence: {row['confidence']:.1f}%"
-        )
+    f"{row['review']}\n\nConfidence: {row['confidence']}"
+)
             elif row['sentiment'] == 'Negative':
                 st.error(
-            f"{row['review']}\n\nConfidence: {row['confidence']:.1f}%"
-        )
+    f"{row['review']}\n\nConfidence: {row['confidence']}"
+)
             else:
                 st.warning(
-            f"{row['review']}\n\nConfidence: {row['confidence']:.1f}%"
-        )
+    f"{row['review']}\n\nConfidence: {row['confidence']}"
+)
         
 
     total_reviews    = len(movie_reviews)
