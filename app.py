@@ -501,13 +501,14 @@ if rows:
     st.dataframe(df, use_container_width=True)
 
 else:
-    st.info("No reviews available yet.")
     sheet_data = sheet.get_all_records()
     movies_df = pd.DataFrame(sheet_data)
-
+    movies_df.columns = movies_df.columns.str.strip()
+    movie_list = movies_df['Movie'].unique()
 if not movies_df.empty:
 
-    movie_list = movies_df['Movie'].unique()
+    st.write(movies_df.columns)
+    st.stop()
     selected_movie = st.selectbox("Select Movie", movie_list)
 
     movie_reviews = movies_df[movies_df['Movie'] == selected_movie]
